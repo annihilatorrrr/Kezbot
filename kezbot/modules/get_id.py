@@ -6,7 +6,7 @@ from kezbot import dispatcher
 def get_id(_bot, update):
     sender = update.message.from_user
     sender_id = str(sender.id)
-    update.effective_message.reply_text("Your Telegram-ID is " + sender_id)
+    update.effective_message.reply_text(f"Your Telegram-ID is {sender_id}")
 
 
 __mod_name__ = "get_id"

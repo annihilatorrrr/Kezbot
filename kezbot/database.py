@@ -8,15 +8,13 @@ lock = threading.RLock()
 class DBHelper:
 
     def add_item(self, chat_id, chat_name):
-        add_list = list((chat_id, chat_name))
+        add_list = [chat_id, chat_name]
         with lock:
             try:
                 sql = '''REPLACE INTO shiftyChats (chats_id, chats_name) VALUES(?,?)'''
                 CURSOR.execute(sql, add_list)
                 CONN.commit()
-                last_row = CURSOR.lastrowid
-
-                return last_row
+                return CURSOR.lastrowid
             except sqlite3.Error as err:
                 print('error:', err)
 
@@ -26,9 +24,7 @@ class DBHelper:
                 CURSOR.execute("SELECT chats_id FROM shiftyChats")
                 CONN.commit()
                 all_rows = CURSOR.fetchall()
-                count_rows = len(all_rows)
-
-                return count_rows
+                return len(all_rows)
             except sqlite3.Error as err:
                 print('error:', err)
 
@@ -37,9 +33,7 @@ class DBHelper:
             try:
                 CURSOR.execute("SELECT chats_name FROM shiftyChats")
                 CONN.commit()
-                all_rows = CURSOR.fetchall()
-
-                return all_rows
+                return CURSOR.fetchall()
             except sqlite3.Error as err:
                 print('error:', err)
 

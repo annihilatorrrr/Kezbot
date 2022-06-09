@@ -22,17 +22,17 @@ def get_sp_url(_bot, update):
                                 else t.url for t, y in get_text.items()][0]))
 
     if re.match(yt_match_pattern, youtube_url, re.I):
-        youtube_id = ' '.join(re.findall(youtube_pattern, youtube_url, re.MULTILINE | re.IGNORECASE))
-
-        if not youtube_id:
-            update.effective_message.reply_text("This is not a valid Youtube-URL! \nTry again.")
-        else:
+        if youtube_id := ' '.join(
+            re.findall(
+                youtube_pattern, youtube_url, re.MULTILINE | re.IGNORECASE
+            )
+        ):
             url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}" \
                 .format(youtube_id, API)
             load_url = ujson.loads(requests.get(url).text)
             song_title = load_url['items'][0]['snippet']['title']
 
-            if not any(e in song_title for e in strips):
+            if all(e not in song_title for e in strips):
                 if update.message.chat.type == "private":
                     update.effective_message.reply_text('This is not a valid song :('
                                                         '\nTry a different link or search for another song.')
@@ -53,18 +53,16 @@ def get_sp_url(_bot, update):
                 new_list[0] = first.split(sep, 1)[0]
                 new_list[0] = first.split(sep2, 1)[0]
 
-                spotify_token = util.prompt_for_user_token(Config.USERNAME, Config.SCOPE)
-
-                if spotify_token:
+                if spotify_token := util.prompt_for_user_token(
+                    Config.USERNAME, Config.SCOPE
+                ):
                     spotify = spotipy.Spotify(auth=spotify_token)
                     artist = new_list[0]
                     track = new_list[1]
-                    results = spotify.search(q="artist:{} track:{}".format(artist, track, limit=1))
-
-                    if results:
-                        spot_tracks = results['tracks']['items']
-
-                        if spot_tracks:
+                    if results := spotify.search(
+                        q="artist:{} track:{}".format(artist, track, limit=1)
+                    ):
+                        if spot_tracks := results['tracks']['items']:
                             spot_artist = spot_tracks[0]['artists'][0]['name']
                             spot_title = spot_tracks[0]['name']
                             spot_url = spot_tracks[0]['external_urls']['spotify']
@@ -72,21 +70,20 @@ def get_sp_url(_bot, update):
                                 ("► {0} - {1} \n{2}".format(spot_artist, spot_title, spot_url), disable_web_page_preview=True)
                         else:
                             results = spotify.search(q="artist:{} track:{}".format(track, artist, limit=1))
-                            spot_tracks = results['tracks']['items']
-
-                            if spot_tracks:
+                            if spot_tracks := results['tracks']['items']:
                                 spot_artist = spot_tracks[0]['artists'][0]['name']
                                 spot_title = spot_tracks[0]['name']
                                 spot_url = spot_tracks[0]['external_urls']['spotify']
                                 update.effective_message.reply_text \
                                     ("► {0} - {1} \n{2}".format(spot_artist, spot_title, spot_url), disable_web_page_preview=True)
-                            else:
-                                if update.message.chat.type == "private":
-                                    update.effective_message.reply_text \
-                                        ("I can't find this track on Spotify :( "
-                                         "\nTry a different link or search for another song.")
+                            elif update.message.chat.type == "private":
+                                update.effective_message.reply_text \
+                                    ("I can't find this track on Spotify :( "
+                                     "\nTry a different link or search for another song.")
                 else:
                     print("There's something wrong with the Spotify token")
+        else:
+            update.effective_message.reply_text("This is not a valid Youtube-URL! \nTry again.")
 
 
 __mod_name__ = "get_spotify"

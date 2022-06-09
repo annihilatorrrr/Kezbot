@@ -14,11 +14,11 @@ OWNER = int(Config.OWNER_ID)
 IMPORTED = {}
 
 for module_name in ALL_MODULES:
-    imported_module = importlib.import_module("kezbot.modules." + module_name)
+    imported_module = importlib.import_module(f"kezbot.modules.{module_name}")
 
     if not hasattr(imported_module, "__mod_name__"):
         imported_module.__mod_name__ = imported_module.__name__
-    if not imported_module.__mod_name__.lower() in IMPORTED:
+    if imported_module.__mod_name__.lower() not in IMPORTED:
         IMPORTED[imported_module.__mod_name__.lower()] = imported_module
     else:
         raise Exception("Can't have two modules with the same name! Please change one")
@@ -27,9 +27,8 @@ for module_name in ALL_MODULES:
 @run_async
 def start(_bot, update):
     update.effective_message.reply_text(
-        "Hi {}, I'm Shifty! I can easily help you switch between Youtube and Spotify."
-        " Just give me a link to a song!".format
-        (update.message.from_user.first_name))
+        f"Hi {update.message.from_user.first_name}, I'm Shifty! I can easily help you switch between Youtube and Spotify. Just give me a link to a song!"
+    )
 
 
 def main():

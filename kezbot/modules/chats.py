@@ -21,13 +21,15 @@ def chats(_bot, update):
 @run_async
 def get_chat_count(bot, update):
     user_id = update.effective_user.id
-    chat_id = update.effective_chat.id
-
     if user_id == OWNER:
+        chat_id = update.effective_chat.id
+
         count = db.get_chat_count()
-        bot.send_message(chat_id=chat_id,
-                         text="I'm currently in {} groups".format(count),
-                         parse_mode=telegram.ParseMode.HTML)
+        bot.send_message(
+            chat_id=chat_id,
+            text=f"I'm currently in {count} groups",
+            parse_mode=telegram.ParseMode.HTML,
+        )
 
 
 @run_async
@@ -38,10 +40,7 @@ def get_chat_names(bot, update):
         chat_id = update.effective_chat.id
         get_chats = db.get_chat_names()
 
-        chat_names = ''
-        for get_chat in get_chats:
-            chat_names += '\n- {0}'.format(get_chat[0])
-
+        chat_names = ''.join('\n- {0}'.format(get_chat[0]) for get_chat in get_chats)
         bot.send_message(chat_id=chat_id,
                          text="<b>I'm in the following chats:</b> {0}\n".format(chat_names),
                          parse_mode=telegram.ParseMode.HTML)

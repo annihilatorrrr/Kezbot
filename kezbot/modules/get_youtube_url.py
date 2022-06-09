@@ -19,10 +19,12 @@ def get_yt_url(_bot, update):
     spotify_url = ''.join(list([y if t.type == MessageEntity.URL else t.url for t, y in message.items()][0]))
 
     if re.match(sp_match_pattern, spotify_url, re.I):
-        spotify_id = re.findall(spotify_pattern, spotify_url, re.MULTILINE | re.IGNORECASE)
-        if spotify_id:
-            spotify_token = util.prompt_for_user_token(Config.USERNAME, Config.SCOPE)
-            if spotify_token:
+        if spotify_id := re.findall(
+            spotify_pattern, spotify_url, re.MULTILINE | re.IGNORECASE
+        ):
+            if spotify_token := util.prompt_for_user_token(
+                Config.USERNAME, Config.SCOPE
+            ):
                 spotify = spotipy.Spotify(auth=spotify_token)
                 result = spotify.track(spotify_id[0][0])
 
@@ -31,8 +33,10 @@ def get_yt_url(_bot, update):
                 title = ''.join(artist.replace('&', '') + ' - ' + track)
 
                 youtube_key = Config.YOUTUBE_API_KEY
-                youtube_url = ("https://www.googleapis.com/youtube/v3/search?part=snippet&q={0}&key={1}"
-                               .format(str(title), youtube_key))
+                youtube_url = "https://www.googleapis.com/youtube/v3/search?part=snippet&q={0}&key={1}".format(
+                    title, youtube_key
+                )
+
                 video_info = ujson.loads(requests.get(youtube_url).text)
 
                 if 'videoId' in video_info['items'][0]['id']:
